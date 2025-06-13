@@ -153,6 +153,7 @@ export const EntityView: React.FC<EntityViewProps> = ({
                 draggable={dragMode}
                 onDragStart={dragMode ? handleDragStart : undefined}
                 onDragOver={dragMode ? handleDragOver : undefined}
+                onDragEnter={dragMode ? handleDragOver : undefined} 
                 onDragLeave={dragMode ? handleDragLeave : undefined}
                 onDrop={dragMode ? handleDrop : undefined}
                 onDragEnd={dragMode ? handleDragEnd : undefined}

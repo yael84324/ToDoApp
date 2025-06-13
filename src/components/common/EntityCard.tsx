@@ -16,6 +16,7 @@ interface EntityCardProps {
   draggable?: boolean;
   onDragStart?: (id: string, e: React.DragEvent) => void;
   onDragOver?: (id: string, e: React.DragEvent) => void;
+  onDragEnter?: (id: string, e: React.DragEvent) => void;
   onDragLeave?: () => void;
   onDrop?: (id: string, e: React.DragEvent) => void;
   onDragEnd?: () => void;
@@ -35,6 +36,7 @@ export const EntityCard: React.FC<EntityCardProps> = ({
   draggable,
   onDragStart,
   onDragOver,
+  onDragEnter,
   onDragLeave,
   onDrop,
   onDragEnd,
@@ -44,7 +46,6 @@ export const EntityCard: React.FC<EntityCardProps> = ({
   items,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [canDrag, setCanDrag] = useState(false);
   const { bg, hover, border } = getThemeClasses(themeColor);
   const isTask = 'completed' in entity;
 
@@ -57,18 +58,17 @@ export const EntityCard: React.FC<EntityCardProps> = ({
   const formatDate = (date: Date) =>
     date.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-  const handleMouseDown = () => {
-    if (draggable) {
-      setCanDrag(true);
-    }
-  };
-
   const handleClick = (e: React.MouseEvent) => {
-    if (!isDragging && onClick && !canDrag) {
+    if (!isDragging && onClick) {
       e.preventDefault();
       e.stopPropagation();
       onClick();
     }
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    onDragEnter?.(entity.id, e);
   };
 
   const isTarget = targetId === entity.id;
@@ -96,19 +96,13 @@ export const EntityCard: React.FC<EntityCardProps> = ({
         isBelowTarget && 'translate-y-[-4]',
         !isDragging && !draggable && 'cursor-pointer hover:scale-105'
       )}
-      onMouseDown={draggable ? handleMouseDown : undefined}
-      draggable={draggable && canDrag}
+      draggable={draggable}
       onDragStart={(e) => onDragStart?.(entity.id, e)}
       onDragOver={(e) => onDragOver?.(entity.id, e)}
+      onDragEnter={handleDragEnter}
       onDragLeave={onDragLeave}
-      onDrop={(e) => {
-        onDrop?.(entity.id, e);
-        setCanDrag(false);
-      }}
-      onDragEnd={() => {
-        onDragEnd?.();
-        setCanDrag(false);
-      }}
+      onDrop={(e) => onDrop?.(entity.id, e)}
+      onDragEnd={onDragEnd}
       onClick={handleClick}
     >
       {isTask && entity.priority !== Priority.None && (
@@ -117,12 +111,14 @@ export const EntityCard: React.FC<EntityCardProps> = ({
       <div className="flex items-center gap-3">
         {isTask && (
           <button
+            data-testid="toggle-button"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
               onToggle?.();
             }}
             className={cn(`p-1`, entity.completed ? 'text-green-500' : `text-gray-400 ${hover}`)}
+            aria-label={entity.completed ? 'Mark as incomplete' : 'Mark as complete'}
           >
             {entity.completed ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
           </button>
@@ -168,12 +164,14 @@ export const EntityCard: React.FC<EntityCardProps> = ({
             {formatDate(entity.createdAt)}
           </div>
           <button
+            data-testid="menu-button"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
               setIsMenuOpen(!isMenuOpen);
             }}
             className={cn(`p-1 ${hover} rounded`)}
+            aria-label="Open menu"
           >
             <MoreVertical className="h-5 w-5" />
           </button>
@@ -185,6 +183,7 @@ export const EntityCard: React.FC<EntityCardProps> = ({
               />
               <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border p-2 z-50">
                 <button
+                  data-testid="edit-button"
                   onClick={(e) => {
                     e.stopPropagation();
                     onEdit();
@@ -195,6 +194,7 @@ export const EntityCard: React.FC<EntityCardProps> = ({
                   <Edit2 className="h-4 w-4" /> Edit
                 </button>
                 <button
+                  data-testid="delete-button"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete();

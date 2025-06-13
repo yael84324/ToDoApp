@@ -44,7 +44,7 @@ function App() {
 
   const handleSelect = (id: string) => {
     setSelectedListId(id);
-    setView('task'); // Ensure view changes to task
+    setView('task');
   };
 
   if (isLoading) {
