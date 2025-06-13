@@ -13,17 +13,6 @@ interface EntityCardProps {
   onDelete: () => void;
   onToggle?: () => void;
   themeColor: string;
-  draggable?: boolean;
-  onDragStart?: (id: string, e: React.DragEvent) => void;
-  onDragOver?: (id: string, e: React.DragEvent) => void;
-  onDragEnter?: (id: string, e: React.DragEvent) => void;
-  onDragLeave?: () => void;
-  onDrop?: (id: string, e: React.DragEvent) => void;
-  onDragEnd?: () => void;
-  isDragging?: boolean;
-  draggedId?: string | null;
-  targetId?: string | null;
-  items: Entity[];
 }
 
 export const EntityCard: React.FC<EntityCardProps> = ({
@@ -33,17 +22,6 @@ export const EntityCard: React.FC<EntityCardProps> = ({
   onDelete,
   onToggle,
   themeColor,
-  draggable,
-  onDragStart,
-  onDragOver,
-  onDragEnter,
-  onDragLeave,
-  onDrop,
-  onDragEnd,
-  isDragging,
-  draggedId,
-  targetId,
-  items,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { bg, hover, border } = getThemeClasses(themeColor);
@@ -59,50 +37,18 @@ export const EntityCard: React.FC<EntityCardProps> = ({
     date.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 
   const handleClick = (e: React.MouseEvent) => {
-    if (!isDragging && onClick) {
+    if (onClick) {
       e.preventDefault();
       e.stopPropagation();
       onClick();
     }
   };
 
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    onDragEnter?.(entity.id, e);
-  };
-
-  const isTarget = targetId === entity.id;
-  const isAboveTarget =
-    targetId &&
-    draggedId &&
-    entity.id !== draggedId &&
-    entity.id !== targetId &&
-    items.indexOf(entity) === items.indexOf(items.find((i) => i.id === targetId)!) - 1;
-  const isBelowTarget =
-    targetId &&
-    draggedId &&
-    entity.id !== draggedId &&
-    entity.id !== targetId &&
-    items.indexOf(entity) === items.indexOf(items.find((i) => i.id === targetId)!) + 1;
-
   return (
     <div
       className={cn(
-        `rounded-lg p-4 shadow-sm transition-all duration-200`,
-        isTask && entity.completed ? 'bg-green-50 border-green-100' : `bg-white border ${border}`,
-        isDragging && draggedId === entity.id && 'opacity-50 scale-95 cursor-move',
-        isTarget && 'ring-2 ring-primary ring-opacity-50 scale-105',
-        isAboveTarget && 'translate-y-4',
-        isBelowTarget && 'translate-y-[-4]',
-        !isDragging && !draggable && 'cursor-pointer hover:scale-105'
+        `rounded-lg p-4 shadow-sm transition-all duration-200 bg-white border ${border} cursor-pointer hover:scale-105`
       )}
-      draggable={draggable}
-      onDragStart={(e) => onDragStart?.(entity.id, e)}
-      onDragOver={(e) => onDragOver?.(entity.id, e)}
-      onDragEnter={handleDragEnter}
-      onDragLeave={onDragLeave}
-      onDrop={(e) => onDrop?.(entity.id, e)}
-      onDragEnd={onDragEnd}
       onClick={handleClick}
     >
       {isTask && entity.priority !== Priority.None && (
@@ -118,7 +64,6 @@ export const EntityCard: React.FC<EntityCardProps> = ({
               onToggle?.();
             }}
             className={cn(`p-1`, entity.completed ? 'text-green-500' : `text-gray-400 ${hover}`)}
-            aria-label={entity.completed ? 'Mark as incomplete' : 'Mark as complete'}
           >
             {entity.completed ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
           </button>
@@ -165,13 +110,13 @@ export const EntityCard: React.FC<EntityCardProps> = ({
           </div>
           <button
             data-testid="menu-button"
+            aria-label="More options"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
               setIsMenuOpen(!isMenuOpen);
             }}
             className={cn(`p-1 ${hover} rounded`)}
-            aria-label="Open menu"
           >
             <MoreVertical className="h-5 w-5" />
           </button>

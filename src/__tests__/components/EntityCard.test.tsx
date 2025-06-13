@@ -30,13 +30,11 @@ describe('EntityCard', () => {
 
   const mockProps = {
     entity: mockTask,
-    items: [mockTask],
     onEdit: mockOnEdit,
     onDelete: mockOnDelete,
     onToggle: mockOnToggle,
     onClick: mockOnClick,
     themeColor: 'purple',
-    draggable: false,
   };
 
   beforeEach(() => {
@@ -52,7 +50,7 @@ describe('EntityCard', () => {
   });
 
   it('renders list card correctly', () => {
-    render(<EntityCard {...mockProps} entity={mockList} items={[mockList]} />);
+    render(<EntityCard {...mockProps} entity={mockList} />);
     expect(screen.getByText('Test List')).toBeInTheDocument();
     expect(screen.getByText('Test List Description')).toBeInTheDocument();
     expect(screen.getByText(/0\s*\/\s*1\s*tasks/)).toBeInTheDocument();

@@ -10,13 +10,13 @@ function App() {
     setSearchTerm,
     settings,
     isLoading,
+    errorMessage,
+    clearError,
     createList,
     updateList,
-    reorderLists,
     deleteList,
     createTask,
     updateTask,
-    reorderTasks,
     toggleTask,
     deleteTask,
     updateThemeColor,
@@ -57,14 +57,6 @@ function App() {
 
   const selectedList = lists.find((list) => list.id === selectedListId);
 
-  const handleReorder = (orderedIds: string[], listId?: string) => {
-    if (view === 'list') {
-      reorderLists(orderedIds);
-    } else if (view === 'task' && listId) {
-      reorderTasks(orderedIds);
-    }
-  };
-
   return (
     <EntityView
       type={view}
@@ -76,12 +68,13 @@ function App() {
       onBack={view === 'task' ? () => setView('list') : undefined}
       onCreate={handleCreate}
       onUpdate={handleUpdate}
-      onReorder={handleReorder}
+      onReorder={() => {}} // Empty function since reorder is removed
       onDelete={view === 'list' ? deleteList : deleteTask}
       onToggle={view === 'task' ? toggleTask : undefined}
       stats={view === 'list' ? getCompletionStats() : undefined}
       themeColor={settings.themeColor}
       onThemeColorChange={view === 'list' ? updateThemeColor : undefined}
+      errorMessage={errorMessage || undefined}
     />
   );
 }

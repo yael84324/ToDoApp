@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, ArrowUpDown } from 'lucide-react';
+import { ArrowLeft, Calendar } from 'lucide-react';
 import { TaskList, Priority, CompletionStats, Task } from '../../types/shared';
 import { ProgressBar } from './ProgressBar';
 import { SearchBar } from './SearchBar';
@@ -9,7 +9,7 @@ import { EntityForm } from './EntityForm';
 import { ThemePicker } from './ThemePicker';
 import { getGradientBg, getThemeClasses } from '../../lib/theme';
 import { cn } from '../../lib/utils';
-import { useDragAndDrop } from '../../hooks/useDragAndDrop';
+import { ErrorMessage } from './ErrorMessage';
 
 interface EntityViewProps {
   type: 'list' | 'task';
@@ -27,6 +27,7 @@ interface EntityViewProps {
   stats?: CompletionStats;
   themeColor: string;
   onThemeColorChange?: (color: string) => void;
+  errorMessage?: string;
 }
 
 export const EntityView: React.FC<EntityViewProps> = ({
@@ -39,22 +40,17 @@ export const EntityView: React.FC<EntityViewProps> = ({
   onBack,
   onCreate,
   onUpdate,
-  onReorder,
   onDelete,
   onToggle,
   stats,
   themeColor,
   onThemeColorChange,
+  errorMessage,
 }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEntity, setEditingEntity] = useState<Task | TaskList | null>(null);
-  const [dragMode, setDragMode] = useState(false);
-  const { border, hover, text, bg } = getThemeClasses(themeColor);
+  const { border, text } = getThemeClasses(themeColor);
   const entities = type === 'list' ? lists! : list!.tasks;
-  const { handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, isDragging, draggedId, targetId } =
-    type === 'list'
-      ? useDragAndDrop<TaskList>(entities as TaskList[], (orderedIds: string[]) => onReorder(orderedIds, list?.id))
-      : useDragAndDrop<Task>(entities as Task[], (orderedIds: string[]) => onReorder(orderedIds, list?.id));
 
   const handleSubmit = (data: { title: string; description: string; priority?: Priority }) => {
     if (editingEntity) {
@@ -80,42 +76,21 @@ export const EntityView: React.FC<EntityViewProps> = ({
   return (
     <div className={cn(`min-h-screen ${getGradientBg(themeColor)} p-4`)}>
       <div className="max-w-3xl mx-auto">
+        {errorMessage && <ErrorMessage message={errorMessage} />}
         {type === 'list' ? (
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">Lists</h1>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setDragMode(!dragMode)}
-                className={cn(
-                  `p-2 rounded-lg shadow-sm`,
-                  dragMode ? `${bg} text-white` : `bg-gray-100 text-gray-600 hover:bg-gray-200`
-                )}
-                title={dragMode ? 'Disable Reorder' : 'Enable Reorder'}
-              >
-                <ArrowUpDown className="h-5 w-5" />
-              </button>
-              <ThemePicker currentColor={themeColor} onColorChange={onThemeColorChange!} />
-            </div>
+            <ThemePicker currentColor={themeColor} onColorChange={onThemeColorChange!} />
           </div>
         ) : (
           <div className={cn(`bg-white rounded-lg p-4 border ${border} mb-4 shadow-sm`)}>
             <div className="flex items-center gap-3 mb-3">
-              <button onClick={onBack} className={cn(`p-2 ${hover} rounded`)}>
+              <button onClick={onBack} className={cn(`p-2 rounded`)}>
                 <ArrowLeft className={cn(`h-5 w-5 ${text}`)} />
               </button>
               <div className="flex items-center gap-3 flex-1">
                 <h1 className="text-xl font-bold">{list!.title}</h1>
               </div>
-              <button
-                onClick={() => setDragMode(!dragMode)}
-                className={cn(
-                  `p-2 rounded-lg shadow-sm`,
-                  dragMode ? `${bg} text-white` : `bg-gray-100 text-gray-600 hover:bg-gray-200`
-                )}
-                title={dragMode ? 'Disable Reorder' : 'Enable Reorder'}
-              >
-                <ArrowUpDown className="h-5 w-5" />
-              </button>
             </div>
             <div className="flex justify-between text-sm text-gray-500 border-t pt-2">
               <div className="flex items-center gap-1">
@@ -141,25 +116,14 @@ export const EntityView: React.FC<EntityViewProps> = ({
               <EntityCard
                 key={entity.id}
                 entity={entity}
-                items={entities}
-                onClick={type === 'list' && !dragMode && onSelect ? () => onSelect(entity.id) : undefined}
+                onClick={type === 'list' && onSelect ? () => onSelect(entity.id) : undefined}
                 onEdit={() => {
                   setEditingEntity(entity);
                   setIsFormOpen(true);
                 }}
                 onDelete={() => onDelete(entity.id)}
-                onToggle={type === 'task' && !dragMode ? () => onToggle!(entity.id) : undefined}
+                onToggle={type === 'task' ? () => onToggle!(entity.id) : undefined}
                 themeColor={themeColor}
-                draggable={dragMode}
-                onDragStart={dragMode ? handleDragStart : undefined}
-                onDragOver={dragMode ? handleDragOver : undefined}
-                onDragEnter={dragMode ? handleDragOver : undefined} 
-                onDragLeave={dragMode ? handleDragLeave : undefined}
-                onDrop={dragMode ? handleDrop : undefined}
-                onDragEnd={dragMode ? handleDragEnd : undefined}
-                isDragging={dragMode ? isDragging : false}
-                draggedId={dragMode ? draggedId : null}
-                targetId={dragMode ? targetId : null}
               />
             ))
           ) : (
