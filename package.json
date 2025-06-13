@@ -6,7 +6,7 @@
   "main": "src/main.tsx",
   "scripts": {
     "dev": "vite",
-    "build": "npx tsc && vite build && tauri build",
+    "build": "tsc && vite build",
     "tauri": "tauri",
     "preview": "vite preview",
     "test": "vitest run",
