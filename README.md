@@ -2,6 +2,9 @@
 
 To-Do is a modern, responsive task management application built with React, TypeScript, and Tauri. It allows users to create, manage, update and delete, theme customization, and local data persistence using `sql.js`.
 
+## Demo Running
+<img src="preview.gif" alt="preview" width="600"/>
+
 ## Features
 - **Task Lists and Tasks**: Create, read, update, and delete (CRUD) task lists and tasks.
 - **Prioritization**: Assign priorities (High, Medium, Low, None) to tasks.
