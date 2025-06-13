@@ -5,6 +5,10 @@ To-Do is a modern, responsive task management application built with React, Type
 ## Demo Running
 <img src="preview.gif" alt="preview" width="600"/>
 
+## MSI file to execute the application
+download from here
+https://github.com/yael84324/ToDoApp/blob/main/todo-app_0.1.0_x64_en-US.msi
+
 ## Features
 - **Task Lists and Tasks**: Create, read, update, and delete (CRUD) task lists and tasks.
 - **Prioritization**: Assign priorities (High, Medium, Low, None) to tasks.
